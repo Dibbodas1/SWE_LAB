@@ -1,0 +1,122 @@
+@model EcommerceApp.Models.Order
+
+@{
+    ViewData["Title"] = "Track Order";
+    Layout = "_Layout";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="card-title mb-0">Track Order #@Model.Id</h2>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5>Order Status: 
+                            @switch (Model.OrderStatus)
+                            {
+                                case "Pending":
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                    break;
+                                case "Processing":
+                                    <span class="badge bg-info">Processing</span>
+                                    break;
+                                case "Shipped":
+                                    <span class="badge bg-primary">Shipped</span>
+                                    break;
+                                case "Delivered":
+                                    <span class="badge bg-success">Delivered</span>
+                                    break;
+                                case "Cancelled":
+                                    <span class="badge bg-danger">Cancelled</span>
+                                    break;
+                                default:
+                                    <span class="badge bg-secondary">@Model.OrderStatus</span>
+                                    break;
+                            }
+                        </h5>
+                        <p class="text-muted">Order placed on @Model.OrderDate.ToString("MMM dd, yyyy HH:mm")</p>
+                    </div>
+                    
+                    @if (!string.IsNullOrEmpty(Model.TrackingNumber))
+                    {
+                        <div class="alert alert-info">
+                            <h5><i class="bi bi-info-circle"></i> Tracking Information</h5>
+                            <p>Your order has been shipped with tracking number: <strong>@Model.TrackingNumber</strong></p>
+                            <p>You can use this tracking number to check the delivery status with the shipping carrier.</p>
+                        </div>
+                    }
+                    else if (Model.OrderStatus == "Processing")
+                    {
+                        <div class="alert alert-info">
+                            <h5><i class="bi bi-info-circle"></i> Order Being Processed</h5>
+                            <p>Your order is currently being processed. A tracking number will be assigned once your order ships.</p>
+                        </div>
+                    }
+                    else if (Model.OrderStatus == "Pending")
+                    {
+                        <div class="alert alert-warning">
+                            <h5><i class="bi bi-exclamation-triangle"></i> Order Pending</h5>
+                            <p>Your order is pending confirmation. We'll update the status once it's processed.</p>
+                        </div>
+                    }
+                    
+                    <div class="tracking-timeline mt-5">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <ul class="list-group">
+                                    <li class="list-group-item @(Model.OrderStatus != "Pending" ? "list-group-item-success" : "")">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h5 class="mb-1"><i class="bi bi-check-circle @(Model.OrderStatus != "Pending" ? "text-success" : "text-muted")"></i> Order Placed</h5>
+                                            <small>@Model.OrderDate.ToString("MMM dd, yyyy")</small>
+                                        </div>
+                                        <p class="mb-1">Your order has been received and is awaiting processing.</p>
+                                    </li>
+                                    
+                                    <li class="list-group-item @(Model.OrderStatus == "Processing" || Model.OrderStatus == "Shipped" || Model.OrderStatus == "Delivered" ? "list-group-item-success" : "")">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h5 class="mb-1"><i class="bi bi-box @(Model.OrderStatus == "Processing" || Model.OrderStatus == "Shipped" || Model.OrderStatus == "Delivered" ? "text-success" : "text-muted")"></i> Processing</h5>
+                                            <small>@(Model.OrderStatus == "Processing" || Model.OrderStatus == "Shipped" || Model.OrderStatus == "Delivered" ? "In Progress" : "Pending")</small>
+                                        </div>
+                                        <p class="mb-1">Your order is being prepared for shipment.</p>
+                                    </li>
+                                    
+                                    <li class="list-group-item @(Model.OrderStatus == "Shipped" || Model.OrderStatus == "Delivered" ? "list-group-item-success" : "")">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h5 class="mb-1"><i class="bi bi-truck @(Model.OrderStatus == "Shipped" || Model.OrderStatus == "Delivered" ? "text-success" : "text-muted")"></i> Shipped</h5>
+                                            <small>@(Model.OrderStatus == "Shipped" || Model.OrderStatus == "Delivered" ? "In Transit" : "Pending")</small>
+                                        </div>
+                                        <p class="mb-1">Your order has been shipped and is on its way to you.</p>
+                                        @if (!string.IsNullOrEmpty(Model.TrackingNumber))
+                                        {
+                                            <p class="mb-1">Tracking Number: <strong>@Model.TrackingNumber</strong></p>
+                                        }
+                                    </li>
+                                    
+                                    <li class="list-group-item @(Model.OrderStatus == "Delivered" ? "list-group-item-success" : "")">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h5 class="mb-1"><i class="bi bi-house @(Model.OrderStatus == "Delivered" ? "text-success" : "text-muted")"></i> Delivered</h5>
+                                            <small>@(Model.OrderStatus == "Delivered" ? "Completed" : "Pending")</small>
+                                        </div>
+                                        <p class="mb-1">Your order has been delivered to the shipping address.</p>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-info">
+                            <i class="bi bi-eye"></i> View Order Details
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to Orders
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

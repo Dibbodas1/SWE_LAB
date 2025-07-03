@@ -1,0 +1,129 @@
+@model EcommerceApp.Models.Order
+
+@{
+    ViewData["Title"] = "Order Details";
+    Layout = "_Layout";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">Order #@Model.Id</h2>
+                    <div>
+                        @switch (Model.OrderStatus)
+                        {
+                            case "Pending":
+                                <span class="badge bg-warning text-dark">Pending</span>
+                                break;
+                            case "Processing":
+                                <span class="badge bg-info">Processing</span>
+                                break;
+                            case "Shipped":
+                                <span class="badge bg-primary">Shipped</span>
+                                break;
+                            case "Delivered":
+                                <span class="badge bg-success">Delivered</span>
+                                break;
+                            case "Cancelled":
+                                <span class="badge bg-danger">Cancelled</span>
+                                break;
+                            default:
+                                <span class="badge bg-secondary">@Model.OrderStatus</span>
+                                break;
+                        }
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Order Information</h5>
+                            <dl class="row">
+                                <dt class="col-sm-4">Order Date</dt>
+                                <dd class="col-sm-8">@Model.OrderDate.ToString("MMM dd, yyyy HH:mm")</dd>
+                                
+                                <dt class="col-sm-4">Status</dt>
+                                <dd class="col-sm-8">@Model.OrderStatus</dd>
+                                
+                                @if (!string.IsNullOrEmpty(Model.TrackingNumber))
+                                {
+                                    <dt class="col-sm-4">Tracking #</dt>
+                                    <dd class="col-sm-8">@Model.TrackingNumber</dd>
+                                }
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Customer Information</h5>
+                            <dl class="row">
+                                <dt class="col-sm-4">Name</dt>
+                                <dd class="col-sm-8">@Model.CustomerName</dd>
+                                
+                                <dt class="col-sm-4">Email</dt>
+                                <dd class="col-sm-8">@Model.Email</dd>
+                                
+                                <dt class="col-sm-4">Phone</dt>
+                                <dd class="col-sm-8">@Model.Phone</dd>
+                                
+                                <dt class="col-sm-4">Address</dt>
+                                <dd class="col-sm-8">@Model.Address</dd>
+                            </dl>
+                        </div>
+                    </div>
+                    
+                    <h5 class="mb-3">Order Items</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th class="text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.OrderItems != null)
+                                {
+                                    foreach (var item in Model.OrderItems)
+                                    {
+                                        <tr>
+                                            <td>@(item.Product != null ? item.Product.Name : "Unknown Product")</td>
+                                            <td>$@item.Price.ToString("F2")</td>
+                                            <td>@item.Quantity</td>
+                                            <td class="text-end">$@((item.Price * item.Quantity).ToString("F2"))</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center">No items found for this order.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="3" class="text-end">Total:</th>
+                                    <th class="text-end">$@Model.TotalAmount.ToString("F2")</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    
+                    <div class="mt-4">
+                        @if (Model.OrderStatus == "Shipped" || Model.OrderStatus == "Processing")
+                        {
+                            <a asp-action="Track" asp-route-id="@Model.Id" class="btn btn-primary">
+                                <i class="bi bi-truck"></i> Track Order
+                            </a>
+                        }
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to Orders
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

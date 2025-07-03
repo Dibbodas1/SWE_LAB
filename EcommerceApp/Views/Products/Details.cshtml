@@ -1,0 +1,92 @@
+@model EcommerceApp.Models.Product
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Products" asp-action="Index">Products</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Products" asp-action="Index" asp-route-categoryId="@Model.CategoryId">@Model.Category?.Name</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Product Image -->
+        <div class="col-md-6 mb-4">
+            <img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "/images/products/placeholder.jpg" : Model.ImageUrl)" 
+                 class="img-fluid rounded" alt="@Model.Name">
+        </div>
+        
+        <!-- Product Details -->
+        <div class="col-md-6">
+            <h2 class="mb-3">@Model.Name</h2>
+            <span class="category-badge mb-3">@Model.Category?.Name</span>
+            
+            <p class="lead mb-4">@Model.Description</p>
+            
+            <div class="d-flex align-items-center mb-4">
+                <h3 class="text-primary me-3">$@Model.Price.ToString("0.00")</h3>
+                <span class="@(Model.Stock > 0 ? "text-success" : "text-danger")">
+                    @(Model.Stock > 0 ? "In Stock" : "Out of Stock")
+                </span>
+            </div>
+            
+            <form asp-controller="Cart" asp-action="AddToCart" method="post" class="mb-4">
+                <input type="hidden" name="productId" value="@Model.Id" />
+                <div class="d-flex align-items-center mb-3">
+                    <label for="quantity" class="me-3">Quantity:</label>
+                    <div class="input-group" style="width: 150px;">
+                        <button type="button" class="btn btn-outline-secondary" onclick="decrementQuantity()">-</button>
+                        <input type="number" id="quantity" name="quantity" class="form-control text-center" value="1" min="1" max="@Model.Stock" @(Model.Stock <= 0 ? "disabled" : "")>
+                        <button type="button" class="btn btn-outline-secondary" onclick="incrementQuantity()">+</button>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg" @(Model.Stock <= 0 ? "disabled" : "")>
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                </button>
+            </form>
+            
+            <div class="mt-4">
+                <h4>Product Details</h4>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Category:</span>
+                        <span>@Model.Category?.Name</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Stock:</span>
+                        <span>@Model.Stock</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Product ID:</span>
+                        <span>@Model.Id</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function incrementQuantity() {
+            var input = document.getElementById('quantity');
+            var max = @Model.Stock;
+            var value = parseInt(input.value, 10);
+            value = isNaN(value) ? 1 : value;
+            value++;
+            input.value = value > max ? max : value;
+        }
+        
+        function decrementQuantity() {
+            var input = document.getElementById('quantity');
+            var value = parseInt(input.value, 10);
+            value = isNaN(value) ? 1 : value;
+            value--;
+            input.value = value < 1 ? 1 : value;
+        }
+    </script>
+}

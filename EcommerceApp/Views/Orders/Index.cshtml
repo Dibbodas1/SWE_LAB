@@ -1,0 +1,79 @@
+@model IEnumerable<EcommerceApp.Models.Order>
+
+@{
+    ViewData["Title"] = "My Orders";
+    Layout = "_Layout";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">@ViewData["Title"]</h1>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model) {
+                            <tr>
+                                <td>@item.Id</td>
+                                <td>@item.OrderDate.ToString("MMM dd, yyyy")</td>
+                                <td>$@item.TotalAmount.ToString("F2")</td>
+                                <td>
+                                    @switch (item.OrderStatus)
+                                    {
+                                        case "Pending":
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                            break;
+                                        case "Processing":
+                                            <span class="badge bg-info">Processing</span>
+                                            break;
+                                        case "Shipped":
+                                            <span class="badge bg-primary">Shipped</span>
+                                            break;
+                                        case "Delivered":
+                                            <span class="badge bg-success">Delivered</span>
+                                            break;
+                                        case "Cancelled":
+                                            <span class="badge bg-danger">Cancelled</span>
+                                            break;
+                                        default:
+                                            <span class="badge bg-secondary">@item.OrderStatus</span>
+                                            break;
+                                    }
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">
+                                            <i class="bi bi-eye"></i> Details
+                                        </a>
+                                        @if (item.OrderStatus == "Shipped" || item.OrderStatus == "Processing")
+                                        {
+                                            <a asp-action="Track" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-truck"></i> Track
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center">You haven't placed any orders yet.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
